@@ -14,7 +14,7 @@ public class UdpReceiveDemo01 {
             socket.receive(packet); // 阻塞式接收包裹
 
             byte[] data = packet.getData();
-            String receiveData = new String(data, 0, data.length);
+            String receiveData = new String(data, 0, packet.getLength());
             System.out.println(receiveData);
 
             // 断开连接-bye
