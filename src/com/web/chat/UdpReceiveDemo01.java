@@ -11,6 +11,7 @@ public class UdpReceiveDemo01 {
             // 准备接收包裹
             byte[] container = new byte[1024];
             DatagramPacket packet = new DatagramPacket(container, 0, container.length);
+<<<<<<< HEAD
             socket.receive(packet); // 阻塞式接收包裹
 
             byte[] data = packet.getData();
@@ -22,6 +23,21 @@ public class UdpReceiveDemo01 {
                 break;
             }
         }
+=======
+            socket.receive(packet);
+
+            // 断开连接 bye
+            byte[] data = packet.getData();
+//            String receiveData = new String(data, 0, data.length);
+            String receiveData = new String(data, 0, packet.getLength());   //需要使用packet.getLength()而不是data.length，使用data.length会导致有很多空格生成
+
+            System.out.println(receiveData);
+            if(receiveData.equals("bye")) {
+                break;
+            }
+        }
+
+>>>>>>> master
         socket.close();
     }
 }
