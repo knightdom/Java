@@ -16,19 +16,11 @@ public class UdpSenderDemo01 {
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
         while (true) {
             String data = reader.readLine();
-<<<<<<< HEAD
             byte[] datas = data.getBytes();
             DatagramPacket packet = new DatagramPacket(datas, 0, datas.length, new InetSocketAddress("localhost", 6666));
             socket.send(packet);
 
             if (data.equals("bye")) {
-=======
-            byte[] datas = data.getBytes(StandardCharsets.UTF_8);
-            DatagramPacket packet = new DatagramPacket(datas, 0, datas.length, new InetSocketAddress("localhost", 6666));
-            socket.send(packet);
-
-            if(data.equals("bye")) {
->>>>>>> master
                 break;
             }
         }
