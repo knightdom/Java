@@ -14,10 +14,17 @@ public class UdpSenderDemo01 {
 
         // 准备数据：控制台读取System.in
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-        String data = reader.readLine();
-        byte[] datas = data.getBytes(StandardCharsets.UTF_8);
-        DatagramPacket packet = new DatagramPacket(datas, 0, datas.length, new InetSocketAddress("localhost", 6666));
-        socket.send(packet);
+        while (true) {
+            String data = reader.readLine();
+            byte[] datas = data.getBytes(StandardCharsets.UTF_8);
+            DatagramPacket packet = new DatagramPacket(datas, 0, datas.length, new InetSocketAddress("localhost", 6666));
+            socket.send(packet);
+
+            if(data.equals("bye")) {
+                break;
+            }
+        }
+
         socket.close();
     }
 }
