@@ -1,6 +1,10 @@
 # Java学习笔记
 
-## 1.  super注意点
+## Java基础
+
+## 
+
+### 1.  super注意点
 
 * super调用父类的构造方法，必须放在子类的构造方法中第一个
 * super必须只能出现在子类的方法或者构造方法中
@@ -22,7 +26,7 @@
 
 *具体参看./src/com/oop/demo03*
 
-## 2. 方法重写
+### 2. 方法重写
 
 需要有继承关系，子类重写父类的**方法**
 * 方法名必须相同
@@ -42,7 +46,7 @@
 
 *具体参看./src/com/oop/demo04*
 
-## 3. 多态
+### 3. 多态
 
 注意事项：
 1. 多态是方法的多态，属性没有多态
@@ -54,7 +58,7 @@
 2. final 常量
 3. private方法
 
-## 4. static详解
+### 4. static详解
 
 ```java
 public class Student {
@@ -91,21 +95,60 @@ public class Student {
 ```
 **静态代码块**只执行一次
 
-## 5.多线程继承Thread类和Runnable接口的区别
+### 5.多线程继承Thread类和Runnable接口的区别
 
 * 继承Thread类
     * 子类继承Thread类具备多线程能力
     * 启动线程：子类对象.start()
     * 不建议使用：**避免OOP单继承局限性**
-*具体参看：./src/com/thread.demo01/TestThread1*
+    *具体参看：./src/com/thread.demo01/TestThread1*
 * 实现Runnable接口
     * 实现接口Runnable具有多线程能力
     * 启动线程：传入目标对象+Thread对象.start()
     * 推荐使用：避免单继承局限性，灵活方便，方便同一个对象被多个线程使用
-*具体参看：./src/com/thread.demo01/TestThread2*
-      
-## 6. lambda表达式
+    *具体参看：./src/com/thread.demo01/TestThread2*
+### 6. lambda表达式
 
 * lambda表达式只能有一行代码的情况下才能简化为一行，如果有多行，就只能用代码块包裹
 * 前提是接口为函数式接口，即只有一个方法
 * 多个参数也可以去掉参数类型，要去掉就都去掉，但必须加括号
+
+
+
+## 注解与反射
+
+### 1. 什么是注解（Annotation）
+
+* Annotation的作用
+  * 不是程序本身，可以对程序做出解释（和注释（comment）一样）
+  * **可以被其他程序（如编译器等）读取**
+* Annotation的格式
+  * “@注释名”如@Override，也可以添加一些参数值，如：@SuppressWarnings(value="unchecked")
+
+```java
+// @SuppressWarning("all")  抑制所有告警
+@SuppressWarnings("all")
+public class Test01 extends Object{
+
+    // @Override 重写的注解
+    @Override
+    public String toString() {
+        return super.toString();
+    }
+
+    // @Deprecated 已经废弃，不推荐程序员使用，但是可以使用
+    @Deprecated
+    public static void test() {
+        System.out.println("Deprecated");
+    }
+
+    public void test02() {
+        ArrayList list = new ArrayList();
+    }
+
+    public static void main(String[] args) {
+        test();
+    }
+}
+```
+
