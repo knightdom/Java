@@ -2,8 +2,6 @@
 
 ## Java基础
 
-## 
-
 ### 1.  super注意点
 
 * super调用父类的构造方法，必须放在子类的构造方法中第一个
@@ -149,6 +147,58 @@ public class Test01 extends Object{
     public static void main(String[] args) {
         test();
     }
+}
+```
+
+### 2. 元注解
+
+* 元注解负责注解其他的注解，Java中定义了4个标准的meta-annotation类型，用来提供对其他annotation类型作说明
+* 在java.lang.annotation包中，包括**@Target, @Retention, @Documented, @Inherited**
+  * **@Target**: 用于描述注解的使用范围（即，被描述的注解用在什么地方）
+  * **@Retention**: 表示需要在什么级别保存该注释信息，用于描述注解饿生命周期（SOURCE < CLASS < RUNTIME)
+  * @Documented: 说明该注解被包含在javadoc中
+  * @Inherited: 说明子类可以继承父类中的该注解
+
+### 3. 自定义注解
+
+* @interface用来声明一个注解，格式：
+
+  ```java
+  public @interface 注解名 {
+  	参数类型 参数名称() [default 默认参数值];
+  }
+  ```
+
+   *如果在类中，去掉public*
+
+* 如果只有一个参数成员，一般参数名为value
+
+* 注解元素必须要有值，我们定义注解元素时，经常使用空字符串，0作为默认值
+
+```java
+public class Test03 {
+    @MyAnnotation2(age = 18)  // 注释可以显示赋值，如果没有默认值，我们就必须给注解赋值
+    public void test() {}
+
+    @MyAnnotation3("Edgar")	// 调用时没有写参数名value
+    public void test01() {}
+}
+
+@Target({ElementType.METHOD, ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+@interface MyAnnotation2 {
+    // 注解的参数：参数类型 + 参数名();
+    String name() default "";
+    int age();
+    int id() default -1;    // 如果默认值为-1，表示不存在
+    String[] schools() default {"UNSW", "UTS"};
+}
+
+// 一个参数的注解
+@Target({ElementType.METHOD, ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+@interface MyAnnotation3{
+    String value(); // 如果只有一个参数，用value作参数名，可以在调用时，不用写参数名
 }
 ```
 
