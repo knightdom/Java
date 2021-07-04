@@ -1,4 +1,4 @@
-package com.annotation;
+package com.edgar.annotation;
 
 import java.lang.annotation.*;
 
