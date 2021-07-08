@@ -349,3 +349,161 @@ public class Test04 {
 * 引导类加载器：用C++编写，是JVM自带的类加载器，**负责Java平台的核心库**，用来装载核心类库。该加载器无法直接获取（即rt.jar）
 * 扩展类加载器：负责jre/lib/ext目录下的jar包或-D java.ext.dirs指定目录下的jar包装入工作库
 * 系统类加载器：负责java -classpath 或 -D java.class.path所指的目录下的类与jar包装入工作，是最常用的加载器
+
+### 10. 获取运行时类的完整结构
+
+* 全部接口
+* 所继承的父类
+* 构造器
+* 方法
+* 属性
+* 注解
+
+```java
+public class Test08 {
+    public static void main(String[] args) throws ClassNotFoundException, NoSuchFieldException, NoSuchMethodException {
+        Class<?> c1 = Class.forName("com.edgar.reflection.User");
+
+        // 获得类的名字
+        System.out.println(c1.getName());   // 获得包名+类名
+        System.out.println(c1.getSimpleName()); // 获得类名
+
+        // 获得类的属性
+        Field[] fields = c1.getFields();    // 只能找到public属性
+        fields = c1.getDeclaredFields();    // 找到全部属性
+        for (Field field : fields) {
+            System.out.println(field);
+        }
+
+        // 获得指定属性的值
+        Field name = c1.getDeclaredField("name");
+        System.out.println(name);
+
+        // 获得类的方法
+        Method[] methods = c1.getMethods(); // 获得本类及其父类的全部public方法
+        for (Method method : methods) {
+            System.out.println("正常的"+method);
+        }
+        methods = c1.getDeclaredMethods();  // 获得本类的所有方法，包括public和private
+        for (Method method : methods) {
+            System.out.println("getDeclareMethods: " + method);
+        }
+
+        // 获得指定方法
+        Method getName = c1.getMethod("getName", null);
+        Method setName = c1.getMethod("setName", String.class);
+        System.out.println(getName);
+        System.out.println(setName);
+
+        // 获得类的构造器
+        Constructor<?>[] constructors = c1.getConstructors();   // 获得public方法
+        for (Constructor<?> constructor : constructors) {
+            System.out.println(constructor);
+        }
+        constructors = c1.getDeclaredConstructors();        // 获得本类的所有方法
+        for (Constructor<?> constructor : constructors) {
+            System.out.println("#"+constructor);
+        }
+
+        // 获得指定的构造器
+        Constructor<?> declaredConstructor = c1.getDeclaredConstructor(String.class, int.class, int.class);
+        System.out.println(declaredConstructor);
+    }
+}
+```
+
+### 11. 动态创建对象执行的方法
+
+```java
+public static void main(String[] args) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException, NoSuchFieldException {
+    // 获得class对象
+    Class<?> c1 = Class.forName("com.edgar.reflection.User");
+    // 构造一个对象
+    User user = (User)c1.newInstance();         // 本质是调用了类的无参构造器
+    System.out.println(user);
+
+    // 通过构造器创建对象
+    Constructor<?> constructor = c1.getDeclaredConstructor(String.class, int.class, int.class);
+
+    // 构造一个对象
+    User edgar = (User) constructor.newInstance("Edgar", 001, 18);
+    System.out.println(edgar);
+
+    // 通过反射调用普通方法
+    User user3 = (User)c1.newInstance();
+    // 通过反射获取一个方法
+    Method setName = c1.getDeclaredMethod("setName", String.class);
+    // invoke: 激活的意思，参数为(对象， 该方法的参数)
+    setName.invoke(user3, "方得着");
+    System.out.println(user3.getName());
+
+    // 通过反射操作属性
+    User user4 = (User)c1.newInstance();
+    Field name = c1.getDeclaredField("name");
+
+    // 不能直接操作私有属性，需要关闭程序的安全检测，属性或方法的setAccessible(true)
+    name.setAccessible(true);   // 将私有的属性的可设置功能变为true
+    name.set(user4, "方得着2");
+    System.out.println(user4.getName());
+}
+```
+
+**setAccessible**
+
+* Method, Field, Constructor对象都有setAccessible()方法
+* setAccessible作用是启动和禁用访问安全检查的开关
+* 参数值为true则指示反射的对象在使用时应该取消Java语言访问检查
+  * 提高反射效率，如果代码中必须用反射，而该句代码需要频繁被调用，那么设置为true
+  * 使得原本无法访问的私有成员也可以访问
+* 参数值为false则指示反射的对象应该实施Java语言访问检查
+
+### 12. 反射操作泛型
+
+Java采用泛型擦除的机制引入泛型，Java中的泛型仅仅只是给编译器javac使用，确保数据的安全性和免去强制类型转换问题，但是，一旦编译完成，所有和泛型有关的类型都被擦除。为了通过反射操作这些类型，Java新增了ParameterizedType, GenericArrayType, TypeVariable和WildcardType几种类型来代表不饿能被归一到Class类中的类型但是又和原始类型齐名的类型。
+
+* ParameterizedType: 表示一种参数化类型，比如Collection <String>
+* GenericArrayType: 表示一种元素类型是参数化类型或者类型变量的数组类型
+* TypeVariable: 是各种类型变量的公共父接口
+* WildcardType: 代表一种通配符类型的表达式
+
+```java
+// 通过反射获取泛型
+public class Test11 {
+    public void test01(Map<String, User> map, List<User> list) {
+        System.out.println("test01");
+    }
+
+    public Map<String, User> test02(){
+        System.out.println("test02");
+        return null;
+    }
+
+    public static void main(String[] args) throws NoSuchMethodException {
+        Method method = Test11.class.getMethod("test01", Map.class, List.class);
+
+        Type[] genericParameterTypes = method.getGenericParameterTypes();
+
+        for (Type genericParameterType : genericParameterTypes) {
+            System.out.println("#"+ genericParameterType);
+            if (genericParameterType instanceof ParameterizedType){
+                Type[] actualTypeArguments = ((ParameterizedType) genericParameterType).getActualTypeArguments();
+                for (Type actualTypeArgument : actualTypeArguments) {
+                    System.out.println(actualTypeArgument);
+                }
+            }
+        }
+
+        Test11.class.getMethod("test02", null);
+        Type genericReturnType = method.getGenericReturnType();
+
+        if( genericReturnType instanceof ParameterizedType) {
+            Type[] actualTypeArguments = ((ParameterizedType) genericReturnType).getActualTypeArguments();
+            for (Type actualTypeArgument : actualTypeArguments) {
+                System.out.println(actualTypeArgument);
+
+            }
+        }
+    }
+}
+```
+
